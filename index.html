@@ -1,12 +1,179 @@
-<html>
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-<title> 여기가 제목!!</title>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 자세 교정 도우미</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
 
+        #app-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            text-align: center;
+            width: 90%;
+            max-width: 480px;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            color: #1c1e21;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: #606770;
+            margin-bottom: 1.5rem;
+        }
+        
+        #start-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #start-button:hover {
+            background-color: #0056b3;
+        }
+        
+        #status {
+            margin-top: 1rem;
+            color: #606770;
+            font-weight: bold;
+        }
+
+        #webcam-container {
+            margin: 1.5rem auto 0;
+            border-radius: 8px;
+            overflow: hidden;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 최종 결과 메시지 스타일 */
+        #result-container {
+            margin-top: 1.5rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            transition: all 0.3s ease-in-out;
+            min-height: 60px; /* 메시지가 없을 때도 높이 유지 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 좋은 자세일 때 스타일 */
+        .good-posture {
+            background-color: #d4edda; /* Light green */
+            color: #155724; /* Dark green */
+            border: 1px solid #c3e6cb;
+        }
+
+        /* 안 좋은 자세일 때 스타일 */
+        .bad-posture {
+            background-color: #f8d7da; /* Light red */
+            color: #721c24; /* Dark red */
+            border: 1px solid #f5c6cb;
+        }
+
+    </style>
+</head>
 <body>
-여기에 내용!
-<h1>이건 h1  스타일 제목</h1>
-<h4> 이건 h4 스타일 제목</h4>
-<p> 이건 일반 본문</p>
+
+    <div id="app-container">
+        <h1>AI 자세 교정 도우미 🧘</h1>
+        <p id="intro-text">카메라를 시작해 실시간으로 자세를 확인하세요.</p>
+        <button type="button" id="start-button" onclick="init()">카메라 시작</button>
+        <div id="status"></div>
+        <div id="webcam-container" style="display: none;"></div>
+        <div id="result-container"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script type="text/javascript">
+        const URL = "./my_model/";
+
+        let model, webcam;
+        
+        const startButton = document.getElementById("start-button");
+        const introText = document.getElementById("intro-text");
+        const statusDiv = document.getElementById("status");
+        const webcamContainer = document.getElementById("webcam-container");
+        const resultContainer = document.getElementById("result-container");
+        
+        async function init() {
+            startButton.style.display = "none";
+            introText.style.display = "none";
+            statusDiv.innerText = "모델을 불러오는 중... 잠시만 기다려주세요.";
+
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            model = await tmImage.load(modelURL, metadataURL);
+            
+            const flip = true; 
+            webcam = new tmImage.Webcam(250, 250, flip); 
+            await webcam.setup();
+            await webcam.play();
+            
+            statusDiv.style.display = "none";
+            webcamContainer.style.display = "block";
+            webcamContainer.appendChild(webcam.canvas);
+            
+            window.requestAnimationFrame(loop);
+        }
+
+        async function loop() {
+            webcam.update();
+            await predict();
+            window.requestAnimationFrame(loop);
+        }
+
+        async function predict() {
+            const prediction = await model.predict(webcam.canvas);
+
+            // "좋은 자세" 클래스의 예측값을 찾습니다.
+            // 사용자의 모델 클래스 이름과 반드시 일치해야 합니다.
+            const goodPostureClassName = "좋은 자세";
+            const goodPosturePrediction = prediction.find(p => p.className === goodPostureClassName);
+
+            if (!goodPosturePrediction) {
+                resultContainer.innerHTML = `'${goodPostureClassName}' 클래스를 모델에서 찾을 수 없습니다.`;
+                resultContainer.className = 'bad-posture';
+                return;
+            }
+            
+            const probability = goodPosturePrediction.probability;
+
+            // 조건에 따라 결과 메시지와 스타일을 변경합니다.
+            if (probability >= 0.50) {
+                resultContainer.innerHTML = "자세가 좋습니다! 👍";
+                resultContainer.className = 'good-posture';
+            } else {
+                resultContainer.innerHTML = "자세를 교정해주세요! 👎";
+                resultContainer.className = 'bad-posture';
+            }
+        }
+    </script>
 </body>
 </html>
