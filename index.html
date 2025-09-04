@@ -37,6 +37,8 @@
         </header>
 
         <main>
+            <!-- API Key Input Section Removed -->
+
             <!-- 통합된 단계: 자막 추출 안내 및 붙여넣기 -->
             <div id="main-step" class="bg-slate-800 p-6 rounded-xl shadow-2xl">
                 <p class="text-lg font-semibold text-white mb-4">1단계: 자막 추출 사이트 열기</p>
@@ -98,6 +100,9 @@
         const transcriptContent = document.getElementById('transcript-content');
         const errorMessage = document.getElementById('error-message');
         const resetBtn = document.getElementById('reset-btn');
+        // API Key related DOM elements removed
+
+        // API Key related event listeners and functions removed
 
         // AI 분석 버튼 이벤트 리스너
         analyzeBtn.addEventListener('click', async () => {
@@ -109,7 +114,7 @@
 
             hideError();
             transcriptContainer.classList.add('hidden');
-            mainStep.classList.add('hidden'); // 분석 시작 시 메인 단계 숨기기
+            mainStep.classList.add('hidden');
             loader.classList.remove('hidden');
 
             try {
@@ -118,8 +123,8 @@
                 transcriptContainer.classList.remove('hidden');
             } catch (error) {
                 console.error("API Error:", error);
-                showError("AI 분석 중 오류가 발생했습니다. 이 문제는 API 키가 없거나 다른 웹사이트에서 직접 실행할 때 발생하는 보안(CORS) 정책 때문일 수 있습니다.");
-                mainStep.classList.remove('hidden'); // 오류 발생 시 다시 표시
+                showError(error.message || "AI 분석 중 오류가 발생했습니다. 코드에 API 키가 올바르게 입력되었는지 확인해주세요.");
+                mainStep.classList.remove('hidden');
             } finally {
                 loader.classList.add('hidden');
             }
@@ -129,13 +134,18 @@
         resetBtn.addEventListener('click', () => {
             transcriptContainer.classList.add('hidden');
             mainStep.classList.remove('hidden');
-            textInput.value = ''; // 텍스트 입력창 비우기
+            textInput.value = '';
             hideError();
         });
 
         // Gemini API 호출 함수
         async function callGeminiAPI(text) {
-            const apiKey = ""; // API 키는 비워두세요.
+            // 중요: 아래 "YOUR_API_KEY_HERE" 부분을 본인의 Gemini API 키로 교체해주세요.
+            const apiKey = "AIzaSyCpoAH0uhdYYJwD37EsL0_4ZtxgCmBIap0"; 
+
+            if (apiKey === "YOUR_API_KEY_HERE") {
+                throw new Error("Gemini API 키가 필요합니다. 코드의 'YOUR_API_KEY_HERE' 부분을 본인의 키로 교체해주세요.");
+            }
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
             const systemInstruction = `You are an English learning assistant for Korean speakers. Process the given English text, which may contain timestamps or be poorly formatted. Clean it up, then for each meaningful sentence, provide:
@@ -180,7 +190,7 @@ Return the output as a valid JSON array, where each object represents a sentence
 
             if (!response.ok) {
                 const errorBody = await response.text();
-                throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                throw new Error(`API 요청 실패 (상태 코드: ${response.status}). API 키가 유효한지 확인해주세요.`);
             }
 
             const result = await response.json();
@@ -188,7 +198,7 @@ Return the output as a valid JSON array, where each object represents a sentence
             if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
                 return JSON.parse(result.candidates[0].content.parts[0].text);
             } else {
-                throw new Error("Invalid API response structure.");
+                throw new Error("API 응답 형식이 올바르지 않습니다.");
             }
         }
         
@@ -247,5 +257,6 @@ Return the output as a valid JSON array, where each object represents a sentence
     </script>
 </body>
 </html>
+
 
 
