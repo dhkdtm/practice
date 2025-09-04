@@ -73,7 +73,10 @@
 
             <!-- 결과 표시 영역 -->
             <div id="transcript-container" class="mt-8 bg-slate-800 p-6 rounded-xl shadow-2xl hidden">
-                <h2 class="text-2xl font-bold text-white mb-6 border-b border-slate-700 pb-3">AI 분석 결과</h2>
+                <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-6">
+                    <h2 class="text-2xl font-bold text-white">AI 분석 결과</h2>
+                    <button id="reset-btn" class="bg-slate-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-slate-500 text-sm transition-colors">새로 분석하기</button>
+                </div>
                 <div id="transcript-content" class="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
                     <!-- 자막 내용이 여기에 동적으로 추가됩니다 -->
                 </div>
@@ -94,6 +97,7 @@
         const transcriptContainer = document.getElementById('transcript-container');
         const transcriptContent = document.getElementById('transcript-content');
         const errorMessage = document.getElementById('error-message');
+        const resetBtn = document.getElementById('reset-btn');
 
         // AI 분석 버튼 이벤트 리스너
         analyzeBtn.addEventListener('click', async () => {
@@ -114,11 +118,19 @@
                 transcriptContainer.classList.remove('hidden');
             } catch (error) {
                 console.error("API Error:", error);
-                showError("AI 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                showError("AI 분석 중 오류가 발생했습니다. 이 문제는 API 키가 없거나 다른 웹사이트에서 직접 실행할 때 발생하는 보안(CORS) 정책 때문일 수 있습니다.");
                 mainStep.classList.remove('hidden'); // 오류 발생 시 다시 표시
             } finally {
                 loader.classList.add('hidden');
             }
+        });
+
+        // 새로 분석하기 버튼 이벤트 리스너
+        resetBtn.addEventListener('click', () => {
+            transcriptContainer.classList.add('hidden');
+            mainStep.classList.remove('hidden');
+            textInput.value = ''; // 텍스트 입력창 비우기
+            hideError();
         });
 
         // Gemini API 호출 함수
@@ -235,4 +247,5 @@ Return the output as a valid JSON array, where each object represents a sentence
     </script>
 </body>
 </html>
+
 
