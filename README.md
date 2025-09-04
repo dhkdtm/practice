@@ -1,1 +1,239 @@
-# practice
+# 영어 영상 공부 도우미
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 영어 자막 번역 및 단어장</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+        }
+        /* 스크롤바 디자인 */
+        #transcript-content::-webkit-scrollbar, #english-text::-webkit-scrollbar {
+            width: 8px;
+        }
+        #transcript-content::-webkit-scrollbar-track, #english-text::-webkit-scrollbar-track {
+            background: #1e293b; /* bg-slate-800 */
+        }
+        #transcript-content::-webkit-scrollbar-thumb, #english-text::-webkit-scrollbar-thumb {
+            background: #4f46e5; /* bg-indigo-600 */
+            border-radius: 4px;
+        }
+        #transcript-content::-webkit-scrollbar-thumb:hover, #english-text::-webkit-scrollbar-thumb:hover {
+            background: #6366f1; /* bg-indigo-500 */
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-3xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">AI 유튜브 자막 분석기</h1>
+            <p class="text-slate-400">유튜브 영상의 영어 자막을 AI로 번역하고 단어를 학습하세요.</p>
+        </header>
+
+        <main>
+            <!-- 통합된 단계: 자막 추출 안내 및 붙여넣기 -->
+            <div id="main-step" class="bg-slate-800 p-6 rounded-xl shadow-2xl">
+                <p class="text-lg font-semibold text-white mb-4">1단계: 자막 추출 사이트 열기</p>
+                 <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 mb-4 text-sm text-slate-300 space-y-2">
+                    <p>1. 아래 버튼을 눌러 새 탭에서 자막 추출 사이트를 엽니다.</p>
+                    <p>2. 학습하고 싶은 유튜브 영상의 자막 전체를 복사하세요.</p>
+                    <p>3. 다시 이 탭으로 돌아와 아래 입력창에 자막을 붙여넣고 'AI 분석하기'를 누르세요.</p>
+                </div>
+                <a href="https://www.youtube-transcript.io/" target="_blank" rel="noopener noreferrer" class="inline-block text-center w-full mb-4 bg-slate-700 text-white font-bold px-6 py-3 rounded-lg hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500 transition-colors duration-200">
+                    자막 추출 사이트 열기 (youtube-transcript.io)
+                </a>
+                
+                <p class="text-lg font-semibold text-white mt-6 mb-4">2단계: 영어 자막 붙여넣고 분석하기</p>
+                <div class="flex flex-col gap-4">
+                    <textarea id="english-text" rows="8" placeholder="복사한 영어 자막을 여기에 붙여넣으세요..." class="w-full bg-slate-700 text-white placeholder-slate-400 px-4 py-3 rounded-lg border-2 border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300 resize-y"></textarea>
+                    <button id="analyze-btn" class="bg-indigo-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500 transition-transform duration-200 ease-in-out transform hover:scale-105 self-end">
+                        AI 분석하기
+                    </button>
+                </div>
+            </div>
+
+            <!-- 로딩 스피너 -->
+            <div id="loader" class="hidden text-center py-12">
+                <svg class="animate-spin h-8 w-8 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-4 text-slate-400">AI가 문장을 분석하고 있습니다...</p>
+            </div>
+            
+            <!-- 오류 메시지 -->
+            <div id="error-message" class="hidden mt-6 bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-lg text-center">
+            </div>
+
+            <!-- 결과 표시 영역 -->
+            <div id="transcript-container" class="mt-8 bg-slate-800 p-6 rounded-xl shadow-2xl hidden">
+                <h2 class="text-2xl font-bold text-white mb-6 border-b border-slate-700 pb-3">AI 분석 결과</h2>
+                <div id="transcript-content" class="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
+                    <!-- 자막 내용이 여기에 동적으로 추가됩니다 -->
+                </div>
+            </div>
+        </main>
+
+        <footer class="text-center mt-12 text-slate-500 text-sm">
+            <p>&copy; 2024 AI Transcript Analyzer. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM 요소 가져오기
+        const mainStep = document.getElementById('main-step');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const textInput = document.getElementById('english-text');
+        const loader = document.getElementById('loader');
+        const transcriptContainer = document.getElementById('transcript-container');
+        const transcriptContent = document.getElementById('transcript-content');
+        const errorMessage = document.getElementById('error-message');
+
+        // AI 분석 버튼 이벤트 리스너
+        analyzeBtn.addEventListener('click', async () => {
+            const text = textInput.value.trim();
+            if (!text) {
+                showError("분석할 영어 자막을 붙여넣어 주세요.");
+                return;
+            }
+
+            hideError();
+            transcriptContainer.classList.add('hidden');
+            mainStep.classList.add('hidden'); // 분석 시작 시 메인 단계 숨기기
+            loader.classList.remove('hidden');
+
+            try {
+                const result = await callGeminiAPI(text);
+                displayTranscript(result);
+                transcriptContainer.classList.remove('hidden');
+            } catch (error) {
+                console.error("API Error:", error);
+                showError("AI 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                mainStep.classList.remove('hidden'); // 오류 발생 시 다시 표시
+            } finally {
+                loader.classList.add('hidden');
+            }
+        });
+
+        // Gemini API 호출 함수
+        async function callGeminiAPI(text) {
+            const apiKey = ""; // API 키는 비워두세요.
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            const systemInstruction = `You are an English learning assistant for Korean speakers. Process the given English text, which may contain timestamps or be poorly formatted. Clean it up, then for each meaningful sentence, provide:
+1. The original English sentence (cleaned).
+2. A natural-sounding Korean translation.
+3. A list of vocabulary words considered above the Korean middle school 3rd-grade level. For each word, provide its Korean meaning.
+Return the output as a valid JSON array, where each object represents a sentence and its analysis. Do not include markdown formatting.`;
+
+            const payload = {
+                systemInstruction: { parts: [{ text: systemInstruction }] },
+                contents: [{ parts: [{ text }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                english: { type: "STRING" },
+                                korean: { type: "STRING" },
+                                vocab: {
+                                    type: "ARRAY",
+                                    items: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            word: { type: "STRING" },
+                                            meaning: { type: "STRING" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.text();
+                throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
+                return JSON.parse(result.candidates[0].content.parts[0].text);
+            } else {
+                throw new Error("Invalid API response structure.");
+            }
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+        }
+
+        function hideError() {
+            errorMessage.classList.add('hidden');
+        }
+
+        function displayTranscript(data) {
+            transcriptContent.innerHTML = ''; 
+            if (!data || data.length === 0) {
+                transcriptContent.innerHTML = `<p class="text-slate-400">분석 결과가 없습니다. 다른 문장을 시도해보세요.</p>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const segmentDiv = document.createElement('div');
+                segmentDiv.className = 'border-b border-slate-700 pb-6 last:border-b-0 last:pb-0';
+
+                const englishP = document.createElement('p');
+                englishP.className = 'text-lg text-white mb-2';
+                englishP.textContent = item.english;
+
+                const koreanP = document.createElement('p');
+                koreanP.className = 'text-md text-slate-400 mb-4';
+                koreanP.textContent = item.korean;
+                
+                segmentDiv.appendChild(englishP);
+                segmentDiv.appendChild(koreanP);
+
+                if (item.vocab && item.vocab.length > 0) {
+                    const vocabList = document.createElement('ul');
+                    vocabList.className = 'list-none space-y-2';
+                    item.vocab.forEach(v => {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'flex items-center text-sm';
+                        const wordSpan = document.createElement('span');
+                        wordSpan.className = 'font-semibold text-indigo-400 w-28 flex-shrink-0';
+                        wordSpan.textContent = v.word;
+                        const meaningSpan = document.createElement('span');
+                        meaningSpan.className = 'text-slate-300';
+                        meaningSpan.textContent = v.meaning;
+                        listItem.appendChild(wordSpan);
+                        listItem.appendChild(meaningSpan);
+                        vocabList.appendChild(listItem);
+                    });
+                    segmentDiv.appendChild(vocabList);
+                }
+                transcriptContent.appendChild(segmentDiv);
+            });
+        }
+    </script>
+</body>
+</html>
+
