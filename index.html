@@ -12,7 +12,6 @@
         body {
             font-family: 'Inter', 'Noto Sans KR', sans-serif;
         }
-        /* 스크롤바 디자인 */
         #transcript-content::-webkit-scrollbar, #english-text::-webkit-scrollbar {
             width: 8px;
         }
@@ -26,6 +25,13 @@
         #transcript-content::-webkit-scrollbar-thumb:hover, #english-text::-webkit-scrollbar-thumb:hover {
             background: #6366f1; /* bg-indigo-500 */
         }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200 flex items-center justify-center min-h-screen p-4">
@@ -37,24 +43,21 @@
         </header>
 
         <main>
-            <!-- API Key Input Section Removed -->
-
-            <!-- 통합된 단계: 자막 추출 안내 및 붙여넣기 -->
-            <div id="main-step" class="bg-slate-800 p-6 rounded-xl shadow-2xl">
-                <p class="text-lg font-semibold text-white mb-4">1단계: 자막 추출 사이트 열기</p>
-                 <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 mb-4 text-sm text-slate-300 space-y-2">
-                    <p>1. 아래 버튼을 눌러 새 탭에서 자막 추출 사이트를 엽니다.</p>
-                    <p>2. 학습하고 싶은 유튜브 영상의 자막 전체를 복사하세요.</p>
-                    <p>3. 다시 이 탭으로 돌아와 아래 입력창에 자막을 붙여넣고 'AI 분석하기'를 누르세요.</p>
-                </div>
-                <a href="https://www.youtube-transcript.io/" target="_blank" rel="noopener noreferrer" class="inline-block text-center w-full mb-4 bg-slate-700 text-white font-bold px-6 py-3 rounded-lg hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500 transition-colors duration-200">
-                    자막 추출 사이트 열기 (youtube-transcript.io)
+            <!-- 1단계: 자막 추출 안내 -->
+            <div id="step1" class="bg-slate-800 p-6 rounded-xl shadow-2xl fade-in">
+                <p class="text-lg font-semibold text-white mb-4">1단계: 영어 자막 복사하기</p>
+                <p class="text-slate-300 mb-4">아래 버튼을 눌러 자막 추출 사이트를 연 뒤, 원하는 유튜브 영상의 자막을 복사해오세요.</p>
+                <a href="https://www.youtube-transcript.io/" target="_blank" rel="noopener noreferrer" class="inline-block text-center w-full bg-slate-700 text-white font-bold px-6 py-3 rounded-lg hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500 transition-colors duration-200">
+                    자막 추출 사이트 열기 (새 탭)
                 </a>
-                
-                <p class="text-lg font-semibold text-white mt-6 mb-4">2단계: 영어 자막 붙여넣고 분석하기</p>
+            </div>
+
+            <!-- 2단계: 자막 붙여넣기 -->
+            <div id="step2" class="mt-8 bg-slate-800 p-6 rounded-xl shadow-2xl fade-in">
+                <p class="text-lg font-semibold text-white mb-4">2단계: 자막 붙여넣고 분석하기</p>
                 <div class="flex flex-col gap-4">
-                    <textarea id="english-text" rows="8" placeholder="복사한 영어 자막을 여기에 붙여넣으세요..." class="w-full bg-slate-700 text-white placeholder-slate-400 px-4 py-3 rounded-lg border-2 border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300 resize-y"></textarea>
-                    <button id="analyze-btn" class="bg-indigo-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500 transition-transform duration-200 ease-in-out transform hover:scale-105 self-end">
+                    <textarea id="english-text" rows="8" placeholder="복사한 영어 자막을 여기에 붙여넣으세요..." class="w-full bg-slate-700 text-white placeholder-slate-400 px-4 py-3 rounded-lg border-2 border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 resize-y"></textarea>
+                    <button id="analyze-btn" class="bg-indigo-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500 transition-transform duration-200 transform hover:scale-105 self-end">
                         AI 분석하기
                     </button>
                 </div>
@@ -62,7 +65,7 @@
 
             <!-- 로딩 스피너 -->
             <div id="loader" class="hidden text-center py-12">
-                <svg class="animate-spin h-8 w-8 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg class="animate-spin h-8 w-8 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -70,17 +73,18 @@
             </div>
             
             <!-- 오류 메시지 -->
-            <div id="error-message" class="hidden mt-6 bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-lg text-center">
+            <div id="error-message" class="hidden mt-6 bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-lg text-center fade-in">
             </div>
 
             <!-- 결과 표시 영역 -->
-            <div id="transcript-container" class="mt-8 bg-slate-800 p-6 rounded-xl shadow-2xl hidden">
-                <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-6">
+            <div id="transcript-container" class="mt-8 bg-slate-800 p-6 rounded-xl shadow-2xl hidden fade-in">
+                 <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-6">
                     <h2 class="text-2xl font-bold text-white">AI 분석 결과</h2>
-                    <button id="reset-btn" class="bg-slate-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-slate-500 text-sm transition-colors">새로 분석하기</button>
+                    <button id="reset-btn" class="bg-slate-700 text-white font-bold text-sm px-4 py-2 rounded-lg hover:bg-slate-600 transition-colors duration-200">
+                        새로 분석하기
+                    </button>
                 </div>
                 <div id="transcript-content" class="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
-                    <!-- 자막 내용이 여기에 동적으로 추가됩니다 -->
                 </div>
             </div>
         </main>
@@ -91,172 +95,179 @@
     </div>
 
     <script>
-        // DOM 요소 가져오기
-        const mainStep = document.getElementById('main-step');
-        const analyzeBtn = document.getElementById('analyze-btn');
-        const textInput = document.getElementById('english-text');
-        const loader = document.getElementById('loader');
-        const transcriptContainer = document.getElementById('transcript-container');
-        const transcriptContent = document.getElementById('transcript-content');
-        const errorMessage = document.getElementById('error-message');
-        const resetBtn = document.getElementById('reset-btn');
-        // API Key related DOM elements removed
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM 요소
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const textInput = document.getElementById('english-text');
+            const loader = document.getElementById('loader');
+            const transcriptContainer = document.getElementById('transcript-container');
+            const transcriptContent = document.getElementById('transcript-content');
+            const errorMessage = document.getElementById('error-message');
+            const resetBtn = document.getElementById('reset-btn');
 
-        // API Key related event listeners and functions removed
+            // AI 분석 버튼 이벤트
+            analyzeBtn.addEventListener('click', async () => {
+                const text = textInput.value.trim();
+                if (!text) {
+                    showError("분석할 영어 자막을 붙여넣어 주세요.");
+                    return;
+                }
 
-        // AI 분석 버튼 이벤트 리스너
-        analyzeBtn.addEventListener('click', async () => {
-            const text = textInput.value.trim();
-            if (!text) {
-                showError("분석할 영어 자막을 붙여넣어 주세요.");
-                return;
-            }
+                hideError();
+                step1.classList.add('hidden');
+                step2.classList.add('hidden');
+                loader.classList.remove('hidden');
 
-            hideError();
-            transcriptContainer.classList.add('hidden');
-            mainStep.classList.add('hidden');
-            loader.classList.remove('hidden');
+                try {
+                    const result = await callGeminiAPI(text);
+                    displayTranscript(result);
+                    transcriptContainer.classList.remove('hidden');
+                } catch (error) {
+                    console.error("API Error:", error);
+                    let detailedMessage = "AI 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+                    if (error.message.includes('API key not valid')) {
+                        detailedMessage = "API 키가 유효하지 않습니다. 코드에 올바른 Gemini API 키를 입력했는지 확인해주세요.";
+                    } else if (error.message.includes('API key and method') || error.message.includes('permission')) {
+                        detailedMessage = "API 요청에 실패했습니다. API 키의 결제 계정 연결 및 Gemini API 사용 설정을 확인해주세요.";
+                    }
+                    showError(detailedMessage);
+                    // 오류 발생 시 다시 입력 화면으로
+                    step1.classList.remove('hidden');
+                    step2.classList.remove('hidden');
+                } finally {
+                    loader.classList.add('hidden');
+                }
+            });
 
-            try {
-                const result = await callGeminiAPI(text);
-                displayTranscript(result);
-                transcriptContainer.classList.remove('hidden');
-            } catch (error) {
-                console.error("API Error:", error);
-                showError(error.message || "AI 분석 중 오류가 발생했습니다. 코드에 API 키가 올바르게 입력되었는지 확인해주세요.");
-                mainStep.classList.remove('hidden');
-            } finally {
-                loader.classList.add('hidden');
-            }
-        });
+            // 새로 분석하기 버튼 이벤트
+            resetBtn.addEventListener('click', () => {
+                transcriptContainer.classList.add('hidden');
+                hideError();
+                textInput.value = '';
+                step1.classList.remove('hidden');
+                step2.classList.remove('hidden');
+            });
+            
+            async function callGeminiAPI(text) {
+                // =================================================================================
+                // 중요: 아래 부분에 요청하신 API 키를 입력했습니다.
+                // 만약 이 키가 작동하지 않을 경우, Google의 보안 정책에 따라 키가 비활성화되었을
+                // 가능성이 높으니 Google AI Studio에서 새 키를 발급받아 교체해주세요.
+                // =================================================================================
+                const apiKey = "AIzaSyD9LOty0R2GyL3XAz_XmFW5HHG0FVHp9Co";
 
-        // 새로 분석하기 버튼 이벤트 리스너
-        resetBtn.addEventListener('click', () => {
-            transcriptContainer.classList.add('hidden');
-            mainStep.classList.remove('hidden');
-            textInput.value = '';
-            hideError();
-        });
+                if (apiKey === "YOUR_API_KEY_HERE" || !apiKey) {
+                    throw new Error("API key not valid. Please replace 'YOUR_API_KEY_HERE' in the code with your actual Gemini API key.");
+                }
 
-        // Gemini API 호출 함수
-        async function callGeminiAPI(text) {
-            // 중요: 아래 "YOUR_API_KEY_HERE" 부분을 본인의 Gemini API 키로 교체해주세요.
-            const apiKey = "AIzaSyCpoAH0uhdYYJwD37EsL0_4ZtxgCmBIap0"; 
-
-            if (apiKey === "YOUR_API_KEY_HERE") {
-                throw new Error("Gemini API 키가 필요합니다. 코드의 'YOUR_API_KEY_HERE' 부분을 본인의 키로 교체해주세요.");
-            }
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-            const systemInstruction = `You are an English learning assistant for Korean speakers. Process the given English text, which may contain timestamps or be poorly formatted. Clean it up, then for each meaningful sentence, provide:
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                
+                const systemInstruction = `You are an English learning assistant for Korean speakers. Process the given English text, which may contain timestamps or be poorly formatted. Clean it up, then for each meaningful sentence, provide:
 1. The original English sentence (cleaned).
 2. A natural-sounding Korean translation.
 3. A list of vocabulary words considered above the Korean middle school 3rd-grade level. For each word, provide its Korean meaning.
 Return the output as a valid JSON array, where each object represents a sentence and its analysis. Do not include markdown formatting.`;
 
-            const payload = {
-                systemInstruction: { parts: [{ text: systemInstruction }] },
-                contents: [{ parts: [{ text }] }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "ARRAY",
-                        items: {
-                            type: "OBJECT",
-                            properties: {
-                                english: { type: "STRING" },
-                                korean: { type: "STRING" },
-                                vocab: {
-                                    type: "ARRAY",
-                                    items: {
-                                        type: "OBJECT",
-                                        properties: {
-                                            word: { type: "STRING" },
-                                            meaning: { type: "STRING" }
+                const payload = {
+                    systemInstruction: { parts: [{ text: systemInstruction }] },
+                    contents: [{ parts: [{ text }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    english: { type: "STRING" },
+                                    korean: { type: "STRING" },
+                                    vocab: {
+                                        type: "ARRAY",
+                                        items: {
+                                            type: "OBJECT",
+                                            properties: {
+                                                word: { type: "STRING" },
+                                                meaning: { type: "STRING" }
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                }
-            };
+                };
 
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                const errorBody = await response.text();
-                throw new Error(`API 요청 실패 (상태 코드: ${response.status}). API 키가 유효한지 확인해주세요.`);
-            }
-
-            const result = await response.json();
-            
-            if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
-                return JSON.parse(result.candidates[0].content.parts[0].text);
-            } else {
-                throw new Error("API 응답 형식이 올바르지 않습니다.");
-            }
-        }
-        
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.classList.remove('hidden');
-        }
-
-        function hideError() {
-            errorMessage.classList.add('hidden');
-        }
-
-        function displayTranscript(data) {
-            transcriptContent.innerHTML = ''; 
-            if (!data || data.length === 0) {
-                transcriptContent.innerHTML = `<p class="text-slate-400">분석 결과가 없습니다. 다른 문장을 시도해보세요.</p>`;
-                return;
-            }
-
-            data.forEach(item => {
-                const segmentDiv = document.createElement('div');
-                segmentDiv.className = 'border-b border-slate-700 pb-6 last:border-b-0 last:pb-0';
-
-                const englishP = document.createElement('p');
-                englishP.className = 'text-lg text-white mb-2';
-                englishP.textContent = item.english;
-
-                const koreanP = document.createElement('p');
-                koreanP.className = 'text-md text-slate-400 mb-4';
-                koreanP.textContent = item.korean;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
                 
-                segmentDiv.appendChild(englishP);
-                segmentDiv.appendChild(koreanP);
+                const responseData = await response.json();
 
-                if (item.vocab && item.vocab.length > 0) {
-                    const vocabList = document.createElement('ul');
-                    vocabList.className = 'list-none space-y-2';
-                    item.vocab.forEach(v => {
-                        const listItem = document.createElement('li');
-                        listItem.className = 'flex items-center text-sm';
-                        const wordSpan = document.createElement('span');
-                        wordSpan.className = 'font-semibold text-indigo-400 w-28 flex-shrink-0';
-                        wordSpan.textContent = v.word;
-                        const meaningSpan = document.createElement('span');
-                        meaningSpan.className = 'text-slate-300';
-                        meaningSpan.textContent = v.meaning;
-                        listItem.appendChild(wordSpan);
-                        listItem.appendChild(meaningSpan);
-                        vocabList.appendChild(listItem);
-                    });
-                    segmentDiv.appendChild(vocabList);
+                if (!response.ok) {
+                    const errorDetails = responseData.error?.message || `API request failed with status ${response.status}`;
+                    throw new Error(errorDetails);
                 }
-                transcriptContent.appendChild(segmentDiv);
-            });
-        }
+
+                if (responseData.candidates?.[0]?.content?.parts?.[0]?.text) {
+                    return JSON.parse(responseData.candidates[0].content.parts[0].text);
+                } else {
+                    throw new Error("Invalid API response structure.");
+                }
+            }
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.remove('hidden');
+            }
+
+            function hideError() {
+                errorMessage.classList.add('hidden');
+            }
+
+            function displayTranscript(data) {
+                transcriptContent.innerHTML = '';
+                if (!data || data.length === 0) {
+                    transcriptContent.innerHTML = `<p class="text-slate-400">분석 결과가 없습니다. 다른 문장을 시도해보세요.</p>`;
+                    return;
+                }
+
+                data.forEach(item => {
+                    const segmentDiv = document.createElement('div');
+                    segmentDiv.className = 'border-b border-slate-700 pb-6 last:border-b-0 last:pb-0';
+                    const englishP = document.createElement('p');
+                    englishP.className = 'text-lg text-white mb-2';
+                    englishP.textContent = item.english;
+                    const koreanP = document.createElement('p');
+                    koreanP.className = 'text-md text-slate-400 mb-4';
+                    koreanP.textContent = item.korean;
+                    segmentDiv.appendChild(englishP);
+                    segmentDiv.appendChild(koreanP);
+                    if (item.vocab && item.vocab.length > 0) {
+                        const vocabList = document.createElement('ul');
+                        vocabList.className = 'list-none space-y-2';
+                        item.vocab.forEach(v => {
+                            const listItem = document.createElement('li');
+                            listItem.className = 'flex items-center text-sm';
+                            const wordSpan = document.createElement('span');
+                            wordSpan.className = 'font-semibold text-indigo-400 w-28 flex-shrink-0';
+                            wordSpan.textContent = v.word;
+                            const meaningSpan = document.createElement('span');
+                            meaningSpan.className = 'text-slate-300';
+                            meaningSpan.textContent = v.meaning;
+                            listItem.appendChild(wordSpan);
+                            listItem.appendChild(meaningSpan);
+                            vocabList.appendChild(listItem);
+                        });
+                        segmentDiv.appendChild(vocabList);
+                    }
+                    transcriptContent.appendChild(segmentDiv);
+                });
+            }
+        });
     </script>
 </body>
 </html>
-
-
 
